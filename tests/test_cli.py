@@ -239,6 +239,7 @@ def test_user_config_recurse_submodules(mocker, cli_runner, user_config_path):
         extra_context=None,
         password=None,
         directory=None,
+        keep_project_on_failure=False,
         accept_hooks=True,
     )
 
