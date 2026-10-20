@@ -66,6 +66,7 @@ def clone(
     recurse_submodules: bool = False,
     clone_to_dir: Path | str = ".",
     no_input: bool = False,
+    keep_project_on_failure: bool = False,
 ) -> str:
     """Clone a repo to the current directory.
 
