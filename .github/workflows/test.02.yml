@@ -8,12 +8,8 @@
 name: CI/CD Tests (version 2)
 
 on:
-  push:
-    branches: [ main ]
-    tags:
-      - '*'   # matches any tag name
-  pull_request:
-    branches: [ main ]
+- push
+- workflow_dispatch
 
 env:
   COLUMNS: 150
@@ -23,7 +19,8 @@ env:
 # Cancel older runs for the same branch/PR (concurrency = run one at a time).
 # When you push several commits in a row, only the newest run continues; older ones are cancelled.
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || 
+    github.ref }}
   cancel-in-progress: true
 
 # Least-privilege token by default.
@@ -43,27 +40,27 @@ jobs:
     name: skipped
     runs-on: ubuntu-latest
     steps:
-      - &checkout { uses: actions/checkout@v5 }
-      - &setup_uv
-        name: Install uv (with cache)
-        uses: astral-sh/setup-uv@v6
-        with:
-          enable-cache: true
-          cache-dependency-glob: uv.lock
-      - &install_just
-        name: Install just
-        uses: taiki-e/install-action@just
+    - &checkout {uses: actions/checkout@v5}
+    - &setup_uv
+      name: Install uv (with cache)
+      uses: astral-sh/setup-uv@v6
+      with:
+        enable-cache: true
+        cache-dependency-glob: uv.lock
+    - &install_just
+      name: Install just
+      uses: taiki-e/install-action@just
 
   lint:
     name: Lint Checking • macOS (via just, uv, ruff)
     runs-on: macos-latest
     timeout-minutes: 15
     steps:
-      - *checkout
-      - *setup_uv
-      - *install_just
-      - name: Lint Checking • macOS (via just, uv, ruff)
-        run: just lint-check
+    - *checkout
+    - *setup_uv
+    - *install_just
+    - name: Lint Checking • macOS (via just, uv, ruff)
+      run: just lint-check
 #   type-check:
 #     name: Type Checking • macOS (via just, uv, ty)
 #     runs-on: macos-latest
@@ -78,16 +75,17 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        os: [ ubuntu-latest, windows-latest, macos-latest ]
-    name: Tests on Python versions 3.9–>3.13 • "${{ matrix.os }}" (via just, uv, pytest, pytest-pretty)
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    name: Tests on Python versions 3.9–>3.13 • "${{ matrix.os }}" (via just, uv,
+      pytest, pytest-pretty)
     runs-on: ${{ matrix.os }}
     timeout-minutes: 45
     steps:
-      - *checkout
-      - *setup_uv
-      - *install_just
-      - name: "Tests on Python versions 3.10–>3.13 • ${{ matrix.os }}"
-        run: just test-all
+    - *checkout
+    - *setup_uv
+    - *install_just
+    - name: Tests on Python versions 3.10–>3.13 • ${{ matrix.os }}
+      run: just test-all
 #   test-coverage:
 #     name: Measuring Coverage • macOS (via just, uv, pytest, pytest-pretty, pytest-cov and coverage[toml])
 #     runs-on: macos-latest
